@@ -9,4 +9,4 @@ In this part, we will continue our work on the backend. Our first major theme wi
 
 ## Exercies
 
-   (https://github.com/GRajesh1198/Full-Stack-Open-2020/tree/master/part4/Blog-List) 
+   [blog-list](https://github.com/GRajesh1198/Full-Stack-Open-2020/tree/master/part4/Blog-List) 
