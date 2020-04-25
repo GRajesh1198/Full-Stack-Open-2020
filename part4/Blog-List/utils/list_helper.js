@@ -14,4 +14,10 @@ const totalLikes=(blogs) => {
 
     return totalLikes
 }
-module.exports={dummy,totalLikes}
+const favoriteBlog=(blogs) => {
+    const favoriteBlog=blogs.reduce((requiredItem,listItem) => (listItem.likes > requiredItem.likes ? listItem:requiredItem))
+    const {_id,url,__v,...requiredBlog}=favoriteBlog
+
+    return requiredBlog
+}
+module.exports={dummy,totalLikes,favoriteBlog}
