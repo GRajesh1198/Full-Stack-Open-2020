@@ -25,6 +25,12 @@ describe('blog list tests',()=>{
         const allBlogsResponse=await api.get('/api/blogs')
         expect(allBlogsResponse.body).toHaveLength(blogHelper.initialBlogs.length)
     })
+
+    test('verifies the unique identifier property',async() =>{
+        const blogsResponse= await api.get('/api/blogs')
+        blogsResponse.body.map(blog=>expect(blog.id).toBeDefined())
+
+    })
 })
 
 
