@@ -76,6 +76,23 @@ describe('blog list tests',()=>{
             .send(blogToBeAdded)
             .expect(400)
     })
+    test('deleting a single resource ',async() => {
+        const blogsAtStart=await blogHelper.blogsInDb()
+        const blogToDelete=blogsAtStart[0]
+        await api
+            .delete(`/api/blogs/${blogToDelete.id}`)
+            .expect(204)
+        const blogsAtEnd=await blogHelper.blogsInDb()
+        expect(blogsAtEnd).toHaveLength(blogHelper.initialBlogs.length -1)
+        const titles=blogsAtEnd.map(blog=>blog.title)
+        expect(titles).not.toContain(blogToDelete.title)
+    })
+    test('deleting a invalid id resource',async() =>{
+        const id='qwertyuiop'
+        await api
+            .delete(`/api/blogs/${id}`)
+            .expect(400)
+    })
 })
 afterAll(async (done)=>{
     mongoose.connection.close()
