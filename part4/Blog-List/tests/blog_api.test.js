@@ -48,6 +48,7 @@ describe('blog list tests',()=>{
         const blogsResponse= await api.get('/api/blogs')
         blogsResponse.body.map(blog=>expect(blog.id).toBeDefined())
     })
+
     test('likes default to the value zero',async() =>{
         const newBlog={
             title:'Star wars Chapter 2',
@@ -64,8 +65,19 @@ describe('blog list tests',()=>{
         const blogAddedToDb=blogsAtEnd.body.find(blog=>blog.title==='Star wars Chapter 2')
         expect(blogAddedToDb.likes).toEqual(0)
     })
-   
+
+    test('verifies if the title and url properties are missing',async()=>{
+        const newBlog={
+            author:'Tony Stark'
+        }
+        const blogToBeAdded=new Blog(newBlog)
+        await api
+            .post('/api/blogs')
+            .send(blogToBeAdded)
+            .expect(400)
+    })
 })
-afterAll(()=>{
+afterAll(async (done)=>{
     mongoose.connection.close()
+    done()
 })
