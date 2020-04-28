@@ -93,6 +93,18 @@ describe('blog list tests',()=>{
             .delete(`/api/blogs/${id}`)
             .expect(400)
     })
+    test('Update the amount of likes for a blog post',async() =>{
+        const blogsAtStart=await api.get('/api/blogs')
+        const blogToBeUpdated=blogsAtStart.body[0]
+        const newLikes={likes:8}
+        const updatedBlog=await api
+            .put(`/api/blogs/${blogToBeUpdated.id}`)
+            .send(newLikes)
+            .expect(200)
+            .expect('Content-Type',/application\/json/)
+        expect(updatedBlog.body.likes).toEqual(8)
+
+    })
 })
 afterAll(async (done)=>{
     mongoose.connection.close()
