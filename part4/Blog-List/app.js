@@ -11,7 +11,7 @@ const middleware=require('./utils/middleware')
 
 logger.info('connecting to ',config.MONGODB_URL)
 
-mongoose.connect(config.MONGODB_URL,{useNewUrlParser:true,useUnifiedTopology:true})
+mongoose.connect(config.MONGODB_URL,{useNewUrlParser:true,useUnifiedTopology:true,useCreateIndex:true})
     .then(()=>{
         logger.info('connected to mongodb')
     })
