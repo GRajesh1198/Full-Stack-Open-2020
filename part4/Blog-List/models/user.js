@@ -3,6 +3,12 @@ const uniqueValidator=require('mongoose-unique-validator')
 mongoose.set('useFindAndModify',false)
 
 const userSchema=new mongoose.Schema({
+    blogs:[
+        {
+            type:mongoose.Schema.Types.ObjectId,
+            ref:'Blog'
+        }
+    ],
     username:{
         type:String,
         minlength:3,

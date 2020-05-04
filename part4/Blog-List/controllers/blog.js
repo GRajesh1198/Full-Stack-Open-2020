@@ -1,26 +1,41 @@
 const blogsRouter=require('express').Router()
 const Blog=require('../models/blog')
-
+const User=require('../models/user')
+const jwt=require('jsonwebtoken')
 blogsRouter.get('/',async (req,res) => {
-    const blogs=await Blog.find({})
+    const blogs=await Blog.find({}).populate('user',{username:1,name:1,id:1})
     res.json(blogs.map(b=>b.toJSON()))
 })
 
+const getToken=(request) => {
+    const authorization=request.get('authorization')
+    if(authorization && authorization.toLowerCase().startsWith('bearer')){
+        return authorization.substring(7)
+    }
+    return null
+
+}
+//eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImZvb2JhciIsImlkIjoiNWVhZTVmZmMxZTA4NDEzMGU4Mjk4YjA2IiwiaWF0IjoxNTg4NTkwODk1fQ.bUDHqRCi9zosirdVLDWkARo8fcgMWCETu0Xi_TKNECE
 blogsRouter.post('/',async (req,res) => {
-    if(!req.body.title){
-        res.status(400).end()
-    }else if(!req.body.url){
+    if(!(req.body.title && req.body.url)){
         res.status(400).end()
     }
-    else{
-        if(req.body.likes === undefined){
-            req.body.likes=0
-        }
-        const blog=new Blog(req.body)
-        const blogResponse=await blog.save()
-        res.json(blogResponse.toJSON())   
+    const body=req.body
+    const token=getToken(req)
+    const decodedToken=jwt.verify(token,process.env.SECRET)
+    if(!token || !decodedToken.id){
+        return res.status(401).json({
+            error:'Inavalid or missing token'
+        })
     }
-     
+    body.likes=!(body.likes) ? 0:body.likes
+    const user=await User.findById(decodedToken.id)
+    //here user is the creator of the blog and is identified by the token
+    const blog=new Blog({...body,user:user._id})
+    const savedBlog=await blog.save()
+    user.blogs=user.blogs.concat(savedBlog._id)
+    await user.save()
+    res.json(savedBlog.toJSON())    
 })
 
 blogsRouter.delete('/:id',async (req,res) => {
