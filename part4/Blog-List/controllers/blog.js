@@ -7,23 +7,13 @@ blogsRouter.get('/',async (req,res) => {
     res.json(blogs.map(b=>b.toJSON()))
 })
 
-const getToken=(request) => {
-    const authorization=request.get('authorization')
-    if(authorization && authorization.toLowerCase().startsWith('bearer')){
-        return authorization.substring(7)
-    }
-    return null
-
-}
-//eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImZvb2JhciIsImlkIjoiNWVhZTVmZmMxZTA4NDEzMGU4Mjk4YjA2IiwiaWF0IjoxNTg4NTkwODk1fQ.bUDHqRCi9zosirdVLDWkARo8fcgMWCETu0Xi_TKNECE
 blogsRouter.post('/',async (req,res) => {
     if(!(req.body.title && req.body.url)){
         res.status(400).end()
     }
     const body=req.body
-    const token=getToken(req)
-    const decodedToken=jwt.verify(token,process.env.SECRET)
-    if(!token || !decodedToken.id){
+    const decodedToken=jwt.verify(req.token,process.env.SECRET)
+    if(!req.token || !decodedToken.id){
         return res.status(401).json({
             error:'Inavalid or missing token'
         })
