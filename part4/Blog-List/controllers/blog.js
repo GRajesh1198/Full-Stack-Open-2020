@@ -2,6 +2,7 @@ const blogsRouter=require('express').Router()
 const Blog=require('../models/blog')
 const User=require('../models/user')
 const jwt=require('jsonwebtoken')
+
 blogsRouter.get('/',async (req,res) => {
     const blogs=await Blog.find({}).populate('user',{username:1,name:1,id:1})
     res.json(blogs.map(b=>b.toJSON()))
@@ -29,8 +30,24 @@ blogsRouter.post('/',async (req,res) => {
 })
 
 blogsRouter.delete('/:id',async (req,res) => {
+    const decodedToken=jwt.verify(req.token,process.env.SECRET)
+    if(!req.token || !decodedToken.id){
+        return res.status(401).json({
+            error:'Invalid or missing token'
+        })
+    }
+    const blog=await Blog.findById(req.params.id)
+    if(blog === null){
+        return res.status(400).end()
+    }
+    const userId=blog.user.toString()
+    if(userId !== decodedToken.id){
+        return res.status(401).json({
+            error:'Invalid Token for the User'
+        })
+    }
     await Blog.findByIdAndRemove(req.params.id)
-    res.status(204).end()
+    res.status(204)
 })
 blogsRouter.put('/:id',async (req,res) => {
     const body=req.body
