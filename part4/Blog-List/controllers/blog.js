@@ -15,9 +15,7 @@ blogsRouter.post('/',async (req,res) => {
     const body=req.body
     const decodedToken=jwt.verify(req.token,process.env.SECRET)
     if(!req.token || !decodedToken.id){
-        return res.status(401).json({
-            error:'Inavalid or missing token'
-        })
+        res.status(400).end()
     }
     body.likes=!(body.likes) ? 0:body.likes
     const user=await User.findById(decodedToken.id)
@@ -26,7 +24,7 @@ blogsRouter.post('/',async (req,res) => {
     const savedBlog=await blog.save()
     user.blogs=user.blogs.concat(savedBlog._id)
     await user.save()
-    res.json(savedBlog.toJSON())    
+    res.status(200).json(savedBlog.toJSON())    
 })
 
 blogsRouter.delete('/:id',async (req,res) => {

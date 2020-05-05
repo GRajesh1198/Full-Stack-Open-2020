@@ -5,6 +5,17 @@ const app=require('../app')
 const blogHelper=require('./blog_helper')
 const api=supertest(app)
 
+let loggedInToken
+beforeAll(async () => {
+    const loginResponse=await api
+        .post('/api/login')
+        .send({
+            username:'foobar',
+            password:'foo'
+        })
+    loggedInToken=loginResponse.body.token
+        
+})
 beforeEach(async ()=>{
     await Blog.deleteMany({})
 
@@ -12,7 +23,9 @@ beforeEach(async ()=>{
         const blogObject=new Blog(blog)
         await blogObject.save()
     }
+    
 })
+
 describe('blog list tests',()=>{
     test('application returns blogs as json',async() => {
         await api
@@ -35,6 +48,7 @@ describe('blog list tests',()=>{
         const blogToBeAdded=new Blog(newBlog)
         await api
             .post('/api/blogs')
+            .set('Authorization',`Bearer ${loggedInToken}`)
             .send(blogToBeAdded)
             .expect(200)
             .expect('Content-Type',/application\/json/)
@@ -43,7 +57,21 @@ describe('blog list tests',()=>{
         const blogTitles=blogsAtEnd.map(blog=>blog.title)
         expect(blogTitles).toContain('Star wars')
     })
-
+    test('Creation fails with proper status code if no token is provided',async () => {
+        const newBlog={
+            title: 'Star wars', 
+            author: 'Robert C. Martin', 
+            url: 'http://blog.cleancoder.com/uncle-bob/2016/05/01/TypeWars.html', 
+            likes: 2,
+        }
+        const blogToBeAdded=new Blog(newBlog)
+        const result=await api
+            .post('/api/blogs')
+            .send(blogToBeAdded)
+        expect(result.statusCode).toBe(500)
+        const blogsAtEnd=await blogHelper.blogsInDb()
+        expect(blogsAtEnd).toHaveLength(blogHelper.initialBlogs.length)
+    })
     test('verifies the unique identifier property',async() =>{
         const blogsResponse= await api.get('/api/blogs')
         blogsResponse.body.map(blog=>expect(blog.id).toBeDefined())
@@ -51,18 +79,19 @@ describe('blog list tests',()=>{
 
     test('likes default to the value zero',async() =>{
         const newBlog={
-            title:'Star wars Chapter 2',
+            title:'Captain Marvel',
             author:'Stan lee',
             url:'http://blog.cleancoder.com/starwars'
         }
         const blogToBeAdded=new Blog(newBlog)
         await api
             .post('/api/blogs')
+            .set('Authorization',`Bearer ${loggedInToken}`)
             .send(blogToBeAdded)
             .expect(200)
             .expect('Content-Type',/application\/json/)
         const blogsAtEnd=await api.get('/api/blogs')
-        const blogAddedToDb=blogsAtEnd.body.find(blog=>blog.title==='Star wars Chapter 2')
+        const blogAddedToDb=blogsAtEnd.body.find(blog=>blog.title==='Captain Marvel')
         expect(blogAddedToDb.likes).toEqual(0)
     })
 
@@ -73,37 +102,9 @@ describe('blog list tests',()=>{
         const blogToBeAdded=new Blog(newBlog)
         await api
             .post('/api/blogs')
+            .set('Authorization',`Bearer ${loggedInToken}`)
             .send(blogToBeAdded)
             .expect(400)
-    })
-    test('deleting a single resource ',async() => {
-        const blogsAtStart=await blogHelper.blogsInDb()
-        const blogToDelete=blogsAtStart[0]
-        await api
-            .delete(`/api/blogs/${blogToDelete.id}`)
-            .expect(204)
-        const blogsAtEnd=await blogHelper.blogsInDb()
-        expect(blogsAtEnd).toHaveLength(blogHelper.initialBlogs.length -1)
-        const titles=blogsAtEnd.map(blog=>blog.title)
-        expect(titles).not.toContain(blogToDelete.title)
-    })
-    test('deleting a invalid id resource',async() =>{
-        const id='qwertyuiop'
-        await api
-            .delete(`/api/blogs/${id}`)
-            .expect(400)
-    })
-    test('Update the amount of likes for a blog post',async() =>{
-        const blogsAtStart=await api.get('/api/blogs')
-        const blogToBeUpdated=blogsAtStart.body[0]
-        const newLikes={likes:8}
-        const updatedBlog=await api
-            .put(`/api/blogs/${blogToBeUpdated.id}`)
-            .send(newLikes)
-            .expect(200)
-            .expect('Content-Type',/application\/json/)
-        expect(updatedBlog.body.likes).toEqual(8)
-
     })
 })
 afterAll(async (done)=>{
