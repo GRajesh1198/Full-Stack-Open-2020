@@ -11,7 +11,7 @@ usersRouter.post('/',async (request,response) => {
     const body=request.body
     if(body.password){
         if(body.password.length < 3 ){
-            response.status(400).send({
+            return response.status(400).send({
                 error:'length of password should be minimum of 3 characters'
             })
         }
@@ -25,7 +25,7 @@ usersRouter.post('/',async (request,response) => {
         const savedUser=await newUser.save()
         response.json(savedUser)
     }else{
-        response.status(400).send({
+        return response.status(400).send({
             error:'password is required'
         })
     }
