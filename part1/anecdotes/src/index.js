@@ -1,23 +1,19 @@
 import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
 
+const Anecdote=({title,content,votes}) => <div><h1>{title}</h1>{content}<br/>has {votes} votes</div>
 const App = (props) => {
   const [selected, setSelected] = useState(0)
-  // const [previous,setPrevious]=useState(selected)
   const [votes,setVotes]=useState(Array(anecdotes.length).fill(0))
   const generateRandomNumber=()=>Math.round(Math.random() * (anecdotes.length-1))
+  const mostVotes=votes.reduce((requiredIndex,currentValue,index,votes) => (votes[requiredIndex] < currentValue ? index:requiredIndex),0)
   const eventHandler=() => {
     let randomNumber=generateRandomNumber()
     while(selected === randomNumber){
       randomNumber=generateRandomNumber()
     }
-  
     setSelected(randomNumber)
-    // setPrevious(selected)
   }
-  // const previousHandler=()=>{
-  //   setSelected(previous)
-  // }
   const voteHandler=() => {
     const votesCopy=[...votes]
     votesCopy[selected]+=1
@@ -25,10 +21,10 @@ const App = (props) => {
   }
   return (
     <div>
-      <div>{props.anecdotes[selected]}</div>
-      <div>has {votes[selected]} votes</div>
+      <Anecdote title="Anecdote of the day" content={props.anecdotes[selected]} votes={votes[selected]}/>
       <button onClick={voteHandler}>vote</button>
       <button onClick={eventHandler}>next anecdote</button>
+      <Anecdote title="Anecdote with most votes" content={props.anecdotes[mostVotes]} votes={votes[mostVotes]}/>
       {/* <button onClick={previousHandler}>previous anecdote</button> */}
     </div>
   )
