@@ -3,14 +3,33 @@ import ReactDOM from 'react-dom'
 
 const App = (props) => {
   const [selected, setSelected] = useState(0)
+  // const [previous,setPrevious]=useState(selected)
+  const [votes,setVotes]=useState(Array(anecdotes.length).fill(0))
+  const generateRandomNumber=()=>Math.round(Math.random() * (anecdotes.length-1))
   const eventHandler=() => {
-    const randomNumber=Math.round(Math.random() * anecdotes.length)
+    let randomNumber=generateRandomNumber()
+    while(selected === randomNumber){
+      randomNumber=generateRandomNumber()
+    }
+  
     setSelected(randomNumber)
+    // setPrevious(selected)
+  }
+  // const previousHandler=()=>{
+  //   setSelected(previous)
+  // }
+  const voteHandler=() => {
+    const votesCopy=[...votes]
+    votesCopy[selected]+=1
+    setVotes(votesCopy)
   }
   return (
     <div>
-      {props.anecdotes[selected]}
-      <button onClick={eventHandler} style={{display:"block"}}>next anecdote</button>
+      <div>{props.anecdotes[selected]}</div>
+      <div>has {votes[selected]} votes</div>
+      <button onClick={voteHandler}>vote</button>
+      <button onClick={eventHandler}>next anecdote</button>
+      {/* <button onClick={previousHandler}>previous anecdote</button> */}
     </div>
   )
 }
