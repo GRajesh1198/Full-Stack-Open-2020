@@ -1,68 +1,108 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# unicafe
+## 1.6: unicafe step1
+Like most companies, Unicafe collects feedback from its customers. Your task is to implement a web application for collecting customer feedback. There are only three options for feedback: good, neutral, and bad.
 
-## Available Scripts
+The application must display the total amount of collected feedback for each category. Your final application could look like this:
 
-In the project directory, you can run:
+![fullstack content](https://fullstackopen.com/static/d4fe767d6d8eb46f1dd21334f5f9e46e/14be6/13e.png) 
 
-### `npm start`
+Note that your application needs to work only during a single browser session. Once you refresh the page, the collected feedback is allowed to disappear.
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+You can implement the application in a single index.js file. You can use the code below as a starting point for your application.
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+```javascript
+import React, { useState } from 'react'
+import ReactDOM from 'react-dom'
 
-### `npm test`
+const App = () => {
+  // save clicks of each button to own state
+  const [good, setGood] = useState(0)
+  const [neutral, setNeutral] = useState(0)
+  const [bad, setBad] = useState(0)
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+  return (
+    <div>
+      code here
+    </div>
+  )
+}
 
-### `npm run build`
+ReactDOM.render(<App />, 
+  document.getElementById('root')
+)
+```
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 1.7: unicafe step2
+Expand your application so that it shows more statistics about the gathered feedback: the total number of collected feedback, the average score (good: 1, neutral: 0, bad: -1) and the percentage of positive feedback.
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+![fullstack content](https://fullstackopen.com/static/0a5d15ae9f055a15cb469b9c9223df41/14be6/14e.png)
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## unicafe step3
+Refactor your application so that displaying the statistics is extracted into its own Statistics component. The state of the application should remain in the App root component.
 
-### `npm run eject`
+Remember that components should not be defined inside other components:
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+```javascript
+// a proper place to define a component
+const Statistics = (props) => {
+  // ...
+}
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+const App = () => {
+  const [good, setGood] = useState(0)
+  const [neutral, setNeutral] = useState(0)
+  const [bad, setBad] = useState(0)
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+  // do not define a component within another component
+  const Statistics = (props) => {
+    // ...
+  }
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+  return (
+    // ...
+  )
+}
+```
 
-## Learn More
+## 1.8 unicafe step4
+Change your application to display statistics only once feedback has been gathered.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+>![fullstack content](https://fullstackopen.com/static/b453d7533ae85dcaf3eccf342a353c58/14be6/15e.png)
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## 1.9 unicafe step5
+Let's continue refactoring the application. Extract the following two components:
 
-### Code Splitting
+Button for defining the buttons used for submitting feedback
+Statistic for displaying a single statistic, e.g. the average score.
+To be clear: the Statistic component always displays a single statistic, meaning that the application uses multiple components for rendering all of the statistics:
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+```javascript
+const Statistics = (props) => {
+  /// ...
+  return(
+    <div>
+      <Statistic text="good" value ={...} />
+      <Statistic text="neutral" value ={...} />
+      <Statistic text="bad" value ={...} />
+      // ...
+    </div>
+  )
+}
+```
 
-### Analyzing the Bundle Size
+The application's state should still be kept in the root App component.
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+## 1.10\*: unicafe step6
+Display the statistics in an HTML table, so that your application looks roughly like this:
 
-### Making a Progressive Web App
+![fullstack content](https://fullstackopen.com/static/a74acccc17aafb02b3801ffa1fcc0fdc/14be6/16e.png)
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
+Remember to keep your console open at all times. If you see this warning in your console:
 
-### Advanced Configuration
+![fullstack content](https://fullstackopen.com/static/d6f948307449c2673f28f1077ef4d789/14be6/17a.png)
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
+Then perform the necessary actions to make the warning disappear. Try Googling the error message if you get stuck.
 
-### Deployment
+*Typical source of an error Unchecked runtime.lastError: Could not establish connection. Receiving end does not exist.is Chrome extension. Try going to chrome://extensions/and try disabling them one by one and refreshing React app page; the error should eventually disappear*.
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+Make sure that from now on you don't see any warnings in your console!
